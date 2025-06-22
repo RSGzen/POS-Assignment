@@ -48,12 +48,22 @@ Steps:
 --> Create global semaphore
 
 --> Create global data of current year
+--> Craete global data of total number of years people spent in this room starting from 2025
+
+--> Create global data of 3 students representing their current year of study
+    -> Student A = 3 years
+    -> Student B = 4 years
+    -> Student C = 4 years
+    
+-> Create global data of repair team representing no. years required to complete renovation
+    -> 1 year
 
 --> Create 2 functions
     -> Single dorm (using mutex, only for student A and repair team)
         > Lock mutex
         > Increase current year
         > Decrease thread data by 1
+        > Increase total number of year spent in this room
         > Print current year and information of thread
         > Unlock mutex
 
@@ -61,19 +71,13 @@ Steps:
         > Sem wait
         > Increase current year
         > Decrease thread data by 1
+        > Increase total number of year spent in this room
         > Print current year and information of thread
         > Sem post
 
 --> Create 4 threads which represent A, B, C, repair
 
 --> In main function:
-    -> Create data of 3 students representing their current year of study
-        > Student A = 3 years
-        > Student B = 4 years
-        > Student C = 4 years
-    
-    -> Create data of repair team representing no. years required to complete renovation
-        > 1 year
 
     -> Initialize mutex
 
