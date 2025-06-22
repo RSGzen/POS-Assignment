@@ -1,0 +1,96 @@
+Scenario:
+
+It is the year 2024
+XMB is a well-knowed university in Bangi. It is currently recruiting for 1 student.
+
+XMB's campus has 1 dorm room for students, a single person dorm.
+The single person dorm can accomodate only 1 person at the same time.
+
+Each XMB student must stay in campus to proceed with their studies.
+During the period of not staying in the dorm, studies are halted and can only resume after staying back in dorm.
+
+Student A is a new student in XMB and stayed at the single person dorm.
+Student A is required to stay at this dorm for the 4 year of his study which he is now only a year 1 student.
+
+At the year 2025, the school suddenly annouced to carry out renovation plans to accomodate more students in campus
+By the school's new policy, the plan is set to renovate the single person dorm into a double person dorm.
+
+The double person dorm can accomodate 2 person at the same time.
+
+During the 1 year renovation, student originally staying in the dorm will be temporarily moved and wait until renovation has completed.
+Student A will be received a notice that the room should be evacuated or he will be evicted.
+
+But due to the local law, student A cannot be randomly evicted and renovation must wait until student A completed his studies.
+
+Now at the same time, there are 2 new students at the XMB office which are student B and student C.
+Student B and C must stay in the campus in order to complete their 4 year bachelor's degree studies. 
+
+Currently, student A has 3 year remaining in studies. Student B and C has 4 year remaining in studies.
+
+How can we propose a solution to solve this efficiently, so that 3 students can finish their studies and the renovation can carry out?
+
+Solution Planning:
+
+Assuming student A, B, C and repair team as 4 threads:
+--> Student A: thread_A
+--> Student B: thread_B
+--> Student C: thread_C
+--> Repair team: thread_4
+
+Assuming the dorm space as a resource:
+--> Before renovation: Only allow single student (Mutex)
+--> During renovation: Only allow thread_repair (Mutex)
+--> After renovation: Allow 2 students at the same time (Semaphore)
+
+Steps:
+
+--> Create global mutex
+--> Create global semaphore
+
+--> Create global data of current year
+
+--> Create 2 functions
+    -> Single dorm (using mutex, only for student A and repair team)
+        > Lock mutex
+        > Increase current year
+        > Decrease thread data by 1
+        > Print current year and information of thread
+        > Unlock mutex
+
+    -> Double dorm (using semaphores, for all students, allowed 2 student same time)
+        > Sem wait
+        > Increase current year
+        > Decrease thread data by 1
+        > Print current year and information of thread
+        > Sem post
+
+--> Create 4 threads which represent A, B, C, repair
+
+--> In main function:
+    -> Create data of 3 students representing their current year of study
+        > Student A = 3 years
+        > Student B = 4 years
+        > Student C = 4 years
+    
+    -> Create data of repair team representing no. years required to complete renovation
+        > 1 year
+
+    -> Initialize mutex
+
+    -> Create thread_A (single_dorm)
+    -> Create thread_4 (single_dorm)
+
+    -> thread_A join 
+    -> thread_4 join
+
+    -> Destroy mutex
+
+    -> Initialize semaphore
+
+    -> Create thread_B (double_dorm)
+    -> Create thread_C (double_dorm)
+
+    -> thread_B join
+    -> thread_C join
+
+    -> Destroy semaphore
