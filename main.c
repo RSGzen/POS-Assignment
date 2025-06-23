@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 // Mutex represents a single dorm
-// Only a student or a repair team can have rights to here at a same time
+// Only a student or a repair worker can have rights to here at a same time
 pthread_mutex_t single_dorm; 
 
 // Semaphore represents a double dorm
@@ -15,6 +15,11 @@ sem_t double_dorm;
 // Declare and initialize total years people spent in the room from 2025
 int total_years = 0;
 
+// Declare and initialize total number of active threads running at the same time as 0
+// Each student count as a thread and the repair worker also count as a single thread
+// Active thread can be referred as total number of person in the room
+int active = 0;
+
 // Iitialize and set current year to 2025
 int current_year = 2025;
 
@@ -23,7 +28,7 @@ int studentA_yosl = 3;
 int studentB_yosl = 4;
 int studentC_yosl = 4;
 
-// Intialize and set the number of years required for repair team renovation
+// Intialize and set the number of years required for repair worker renovation
 int renovation_years_required = 1;
 
 // Function for threads that utilizes mutex
@@ -36,20 +41,25 @@ void* single_dorm_operation(void* arg)
 
     int number1 = 1; // Just for the line below
 
-    // Provides boolean check for whether it is the repair team renovating or student staying in
+    active++; // Current active threads plus 1
+
+    // Print current active threads
+    printf("\n| Current number of person in dorm room: %d |\n", active);
+
+    // Provides boolean check for whether it is the repair worker renovating or student staying in
     if (*repair_check == number1)
     {
-        printf("\nRepair team is renovating the single dorm at year %d", current_year);
+        printf("\nRepair worker is renovating the single dorm at year %d", current_year);
 
         // Adjust the year to after renovation
         current_year += renovation_years_required;
 
-        // Increment total number of years repair team spent in this room
+        // Increment total number of years repair worker spent in this room
         total_years += renovation_years_required;
         
         sleep(1); // Simulate the time required for renovation
         
-        printf("\nRepair team completed renovation at year %d.\n", current_year);
+        printf("\nRepair worker completed renovation at year %d.\n", current_year);
     }
     else
     {
@@ -77,6 +87,11 @@ void* single_dorm_operation(void* arg)
 
     pthread_mutex_unlock(&single_dorm); // Unlock mutex
 
+    active--; // Number of active threads minus 1
+
+    // Print current active threads
+    printf("\n| Current number of person in dorm room: %d |\n", active);
+
     return NULL;
 }
 
@@ -91,6 +106,11 @@ void* double_dorm_operation(void* arg)
     int yosl; // Declare integer of year of studies left for current student
 
     int number0 = 0; // Just for the line below
+
+    active++; // Current active threads plus 1
+
+    // Print current active threads
+    printf("\n| Current number of person in dorm room: %d |\n", active);
 
     // Determine whether the year of studies left is student A or student B
     if (*student_flag == number0)
@@ -138,12 +158,17 @@ void* double_dorm_operation(void* arg)
     
     sem_post(&double_dorm); // Signal (increment of semaphore)
 
+    active--; // Number of active threads minus 1
+
+    // Print current active threads
+    printf("\n| Current number of person in dorm room: %d |\n", active);
+
     return NULL;
 }
 
 int main()
 {
-    pthread_t repair_team, student_A;
+    pthread_t repair_worker, student_A;
 
     printf("\n===================================================\n");
     
@@ -153,15 +178,15 @@ int main()
 
     // Create flags for both threads
     int flag_studentA = 0;
-    int flag_repairTeam = 1;
+    int flag_repairworker = 1;
 
     // Create two threads
     pthread_create(&student_A, NULL, single_dorm_operation, &flag_studentA);
-    pthread_create(&repair_team, NULL, single_dorm_operation, &flag_repairTeam);
+    pthread_create(&repair_worker, NULL, single_dorm_operation, &flag_repairworker);
 
     // Wait for threads to finish
     pthread_join(student_A, NULL); // Student A gets to study until degree finishes
-    pthread_join(repair_team, NULL); // Repair team can renovate after student A graduates
+    pthread_join(repair_worker, NULL); // Repair worker can renovate after student A graduates
 
     // Destroy mutex (single dorm)
     pthread_mutex_destroy(&single_dorm);

@@ -1,15 +1,15 @@
 Scenario:
 
-It is the year 2024
-XMB is a well-knowed university in Bangi. It is currently recruiting for 1 student.
+It is the year 2024:
+University Xter Malaysia Bangi (UXMB) is a well-knowed university in Bangi. It is currently recruiting for 1 student.
 
-XMB's campus has 1 dorm room for students, a single person dorm.
+UXMB's campus has 1 dorm room for students, a single person dorm.
 The single person dorm can accomodate only 1 person at the same time.
 
-Each XMB student must stay in campus to proceed with their studies.
+Each UXMB student must stay in campus to proceed with their studies.
 During the period of not staying in the dorm, studies are halted and can only resume after staying back in dorm.
 
-Student A is a new student in XMB and stayed at the single person dorm.
+Student A is a new student in UXMB and stayed at the single person dorm.
 Student A is required to stay at this dorm for the 4 year of his study which he is now only a year 1 student.
 
 At the year 2025, the school suddenly annouced to carry out renovation plans to accomodate more students in campus
@@ -22,7 +22,7 @@ Student A will be received a notice that the room should be evacuated or he will
 
 But due to the local law, student A cannot be randomly evicted and renovation must wait until student A completed his studies.
 
-Now at the same time, there are 2 new students at the XMB office which are student B and student C.
+Now at the same time, there are 2 new students at the UXMB office which are student B and student C.
 Student B and C must stay in the campus in order to complete their 4 year bachelor's degree studies. 
 
 Currently, student A has 3 year remaining in studies. Student B and C has 4 year remaining in studies.
@@ -35,7 +35,7 @@ Assuming student A, B, C and repair team as 4 threads:
 --> Student A: thread_A
 --> Student B: thread_B
 --> Student C: thread_C
---> Repair team: thread_4
+--> Repair worker: thread_4
 
 Assuming the dorm space as a resource:
 --> Before renovation: Only allow single student (Mutex)
@@ -47,33 +47,40 @@ Steps:
 --> Create global mutex
 --> Create global semaphore
 
+--> Create global data of current number of person in the room
 --> Create global data of current year
 --> Craete global data of total number of years people spent in this room starting from 2025
 
---> Create global data of 3 students representing their current year of study
+--> Create global data of 3 students representing their current years of study left (YOSL)
     -> Student A = 3 years
     -> Student B = 4 years
     -> Student C = 4 years
     
--> Create global data of repair team representing no. years required to complete renovation
+-> Create global data of repair worker representing no. years required to complete renovation
     -> 1 year
 
 --> Create 2 functions
-    -> Single dorm (using mutex, only for student A and repair team)
+    -> Single dorm (using mutex, only for student A and repair worker)
         > Lock mutex
-        > Increase current year
-        > Decrease thread data by 1
-        > Increase total number of year spent in this room
-        > Print current year and information of thread
+        > Increase number of person in room
+        > Loop until yosl becomes 0
+            > Increase current year by 1
+            > Decrease yosl by 1
+            > Increase total number of year spent in this room by 1
+            > Print current year and information of thread
         > Unlock mutex
+        > Decrease number of person in room
 
     -> Double dorm (using semaphores, for all students, allowed 2 student same time)
         > Sem wait
-        > Increase current year
-        > Decrease thread data by 1
-        > Increase total number of year spent in this room
-        > Print current year and information of thread
+        > Increase number of person in room
+        > Loop until YOSL becomes 0
+            > Increase current year by 1
+            > Decrease YOSL by 1
+            > Increase total number of year spent in this room
+            > Print current year and information of thread
         > Sem post
+        > Decrease number of person in room
 
 --> Create 4 threads which represent A, B, C, repair
 
@@ -82,10 +89,10 @@ Steps:
     -> Initialize mutex
 
     -> Create thread_A (single_dorm)
-    -> Create thread_4 (single_dorm)
+    -> Create thread_repair (single_dorm)
 
     -> thread_A join 
-    -> thread_4 join
+    -> thread_repair join
 
     -> Destroy mutex
 
