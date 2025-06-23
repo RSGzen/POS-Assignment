@@ -37,7 +37,7 @@ void* single_dorm_operation(void* arg)
 {
     pthread_mutex_lock(&single_dorm); // Lock mutex
     
-    int *repair_check = (int *)arg; // Cast to boolean data type
+    int *repair_check = (int *)arg; // Cast to int data type
 
     int number1 = 1; // Just for the line below
 
