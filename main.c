@@ -32,10 +32,12 @@ void* single_dorm_operation(void* arg)
 {
     pthread_mutex_lock(&single_dorm); // Lock mutex
     
-    bool *repair_check = (bool *)arg; // Cast to boolean data type
+    int *repair_check = (int *)arg; // Cast to boolean data type
+
+    int number1 = 1; // Just for the line below
 
     // Provides boolean check for whether it is the repair team renovating or student staying in
-    if (repair_check == true)
+    if (*repair_check == number1)
     {
         printf("\nRepair team is renovating the single dorm at year %d", current_year);
 
@@ -63,15 +65,15 @@ void* single_dorm_operation(void* arg)
             total_years++;
 
             // Simulate time passed per year while studying
-            sleep(1)
+            sleep(1);
 
-            printf("\nAfter %d year of study, it is now year %d", i, current_year);
+            printf("\nAfter %d year of study, it is now year %d", i+1, current_year);
         }
 
-        printf("\nStudent A completed degreee at year %d\n", current_year);
+        printf("\n\nStudent A completed degreee at year %d\n", current_year);
     }
 
-    printf("\nTotal years spent in this room: %d", total_years);
+    printf("\nTotal years spent in this room: %d\n", total_years);
 
     pthread_mutex_unlock(&single_dorm); // Unlock mutex
 
@@ -82,21 +84,27 @@ void* double_dorm_operation(void* arg)
 {
     sem_wait(&double_dorm); // Wait (decrement of semaphore)
 
-    char *student_name = (char *)arg; // Cast to character data type for student names
+    int *student_flag = (int *)arg; // Cast to character data type for student names
+
+    char student_name;
 
     int yosl; // Declare integer of year of studies left for current student
 
-    printf("Student %c is studying in double dorm at year %d", student_name, current_year);
+    int number0 = 0; // Just for the line below
 
     // Determine whether the year of studies left is student A or student B
-    if (student_name == 'B')
+    if (*student_flag == number0)
     {
         yosl = studentB_yosl;
+        student_name = 'B';
     }
     else
     {
         yosl = studentC_yosl;
+        student_name = 'C';
     }
+
+    printf("\nStudent %c is studying in double dorm at year %d\n", student_name, current_year);
     
     // Decrease years of studies left for student year by year
     for (int i = 0; i < yosl; i++)
@@ -112,20 +120,20 @@ void* double_dorm_operation(void* arg)
                     // Increase total number of years student B spent in this room
                     total_years++;
                 }
-                else
-                {
-                    studentC_yosl--;
-                    remaining_years = studentC_yosl;
+            else
+            {
+                studentC_yosl--;
+                remaining_years = studentC_yosl;
 
-                    // Increase total number of years student C spent in this room
-                    total_years++;
-                }
+                // Increase total number of years student C spent in this room
+                total_years++;
+            }
             
             // Simulate time passed per year while studying
             sleep(1);
 
-            printf("\nStudent %c studied for %d years, still %d years left", student_name, i, remaining_years);
-            printf("\nTotal years spent in this room: %d", total_years);
+            printf("\nStudent %c studied for %d years, still %d years left", student_name, i+1, remaining_years);
+            printf("\n\nTotal years spent in this room: %d\n", total_years);
         }
     
     sem_post(&double_dorm); // Signal (increment of semaphore)
@@ -143,22 +151,22 @@ int main()
     pthread_mutex_init(&single_dorm, NULL);
     printf("\nCurrently still at single dorm:");
 
-    // Create repair flags for both student A and repair team
-    flag_studentA = false;
-    flag_repairTeam = true;
+    // Create flags for both threads
+    int flag_studentA = 0;
+    int flag_repairTeam = 1;
 
     // Create two threads
-    pthread_create(&student_A, NULL, single_dorm_operation, flag_studentA);
-    pthread_create(&repair_team, NULL, single_dorm_operation, flag_repairTeam);
+    pthread_create(&student_A, NULL, single_dorm_operation, &flag_studentA);
+    pthread_create(&repair_team, NULL, single_dorm_operation, &flag_repairTeam);
 
     // Wait for threads to finish
     pthread_join(student_A, NULL); // Student A gets to study until degree finishes
     pthread_join(repair_team, NULL); // Repair team can renovate after student A graduates
 
     // Destroy mutex (single dorm)
-    pthread_mutex_destroy(&single_dorm)
+    pthread_mutex_destroy(&single_dorm);
     
-    printf("\nNow single person dorm has renovated to double dorm");
+    printf("\n\nNow single person dorm has renovated to double dorm");
     printf("\n===================================================\n");
 
     pthread_t student_B, student_C;
@@ -168,14 +176,14 @@ int main()
     sem_init(&double_dorm, 0, 2);
         // 2nd parameter, 0 => Allow semaphores to be shared between threads
         // 3rd parameter, 2 => Allow maximum of 2 threads in semaphore
-
-    // Declare and initialize names for the both student threads
-    char b_name = 'B';
-    char c_name = 'C';
+    
+    // Create flag for two threads
+    int flag_studentB = 0; // 0 represents student B
+    int flag_studentC = 1; // 1 represents student C
 
     // Create two threads
-    pthread_create(&student_B, NULL, double_dorm_operation, &b_name);
-    pthread_create(&studnet_C, NULL, double_dorm_operation, &c_name);
+    pthread_create(&student_B, NULL, double_dorm_operation, &flag_studentB);
+    pthread_create(&student_C, NULL, double_dorm_operation, &flag_studentC);
 
     // Wait for threads to finish
     pthread_join(student_B, NULL);
@@ -184,10 +192,10 @@ int main()
     // Increment the current year counter for time taken for student B and C to graduate    
     current_year += 4; // Years taken is 4 years
 
-    printf("\nStudent %c completed degreee at year %d\n", b_name, current_year);
-    printf("\nStudent %c completed degreee at year %d\n", c_name, current_year);
+    printf("\nStudent B completed degreee at year %d\n", current_year);
+    printf("\nStudent C completed degreee at year %d\n", current_year);
 
-    printf("\nTotal years spent in this room: %d", total_years);
+    printf("\nTotal years spent in this room: %d\n", total_years);
 
     // Destroy semaphore
     sem_destroy(&double_dorm);
