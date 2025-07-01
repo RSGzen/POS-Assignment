@@ -7,40 +7,40 @@ UXMB's campus has 1 dorm room for students, a single person dorm.
 The single person dorm can accomodate only 1 person at the same time.
 
 Each UXMB student must stay in campus to proceed with their studies.
-During the period of not staying in the dorm, studies are halted and can only resume after staying back in dorm.
 
 Student A is a new student in UXMB and stayed at the single person dorm.
 Student A is required to stay at this dorm for the 4 year of his study which he is now only a year 1 student.
 
-At the year 2025, the school suddenly annouced to carry out renovation plans to accomodate more students in campus
-By the school's new policy, the plan is set to renovate the single person dorm into a double person dorm.
-
-The double person dorm can accomodate 2 person at the same time.
+At the year 2025, the school suddenly annouced to carry out a 1-year renovation plan to the dorm.
 
 During the 1 year renovation, student originally staying in the dorm will be temporarily moved and wait until renovation has completed.
-Student A will be received a notice that the room should be evacuated or he will be evicted.
+Student A received a notice that the room should be evacuated or he will be evicted.
 
 But due to the local law, student A cannot be randomly evicted and renovation must wait until student A completed his studies.
 
-Now at the same time, there are 2 new students at the UXMB office which are student B and student C.
-Student B and C must stay in the campus in order to complete their 4 year bachelor's degree studies. 
+Now at the same time, there are 1 new students at the UXMB office which is student B.
 
-Currently, student A has 3 year remaining in studies. Student B and C has 4 year remaining in studies.
+Currently, student A has 3 year remaining in studies. 
+Repair worker needs 1 year to complete renovation. 
+Student B and C has 4 year remaining in studies.
 
-How can we propose a solution to solve this efficiently, so that 3 students can finish their studies and the renovation can carry out?
+How can we propose a solution to solve this efficiently, so that 2 students can finish their studies and the renovation can carry out?
 
 Solution Planning:
 
-Assuming student A, B, C and repair team as 4 threads:
+Assuming student A, B and repair worker as 3 threads:
 --> Student A: thread_A
 --> Student B: thread_B
---> Student C: thread_C
---> Repair worker: thread_4
+--> Repair worker: thread_w
 
-Assuming the dorm space as a resource:
---> Before renovation: Only allow single student (Mutex)
---> During renovation: Only allow thread_repair (Mutex)
---> After renovation: Allow 2 students at the same time (Semaphore)
+Assuming the dorm space as the resource:
+--> Student A will first finish the 3 years of study in dorm
+--> Student A will then move out
+
+--> Next, repair worker will perform renovation for 1 year
+--> Repair worker completed renovation
+
+--> Student B will move in to study for 4 years
 
 Steps:
 
@@ -49,40 +49,26 @@ Steps:
 
 --> Create global data of current number of person in the room
 --> Create global data of current year
---> Craete global data of total number of years people spent in this room starting from 2025
 
---> Create global data of 3 students representing their current years of study left (YOSL)
+--> Create global data of 2 students representing their current years of study left (YOSL)
     -> Student A = 3 years
     -> Student B = 4 years
-    -> Student C = 4 years
     
--> Create global data of repair worker representing no. years required to complete renovation
+-> Create global data of repair worker representing current years of rennovation left (YORL)
     -> 1 year
 
---> Create 2 functions
+--> Create a function
     -> Single dorm (using mutex, only for student A and repair worker)
         > Lock mutex
         > Increase number of person in room
-        > Loop until yosl becomes 0
+        > Loop until YOSL / YORL becomes 0
             > Increase current year by 1
-            > Decrease yosl by 1
-            > Increase total number of year spent in this room by 1
+            > Decrease YOSL / YORL by 1
             > Print current year and information of thread
         > Unlock mutex
         > Decrease number of person in room
 
-    -> Double dorm (using semaphores, for all students, allowed 2 student same time)
-        > Sem wait
-        > Increase number of person in room
-        > Loop until YOSL becomes 0
-            > Increase current year by 1
-            > Decrease YOSL by 1
-            > Increase total number of year spent in this room
-            > Print current year and information of thread
-        > Sem post
-        > Decrease number of person in room
-
---> Create 4 threads which represent A, B, C, repair
+--> Create 3 threads which represent A, B and repair
 
 --> In main function:
 
@@ -95,13 +81,3 @@ Steps:
     -> thread_repair join
 
     -> Destroy mutex
-
-    -> Initialize semaphore
-
-    -> Create thread_B (double_dorm)
-    -> Create thread_C (double_dorm)
-
-    -> thread_B join
-    -> thread_C join
-
-    -> Destroy semaphore
