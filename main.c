@@ -125,8 +125,8 @@ int main()
     int flag_studentB = 2;
 
     // Create two threads
-    pthread_create(&repair_worker, NULL, single_dorm_operation, &flag_repairworker);
     pthread_create(&student_A, NULL, single_dorm_operation, &flag_studentA);
+    pthread_create(&repair_worker, NULL, single_dorm_operation, &flag_repairworker);
     pthread_create(&student_B, NULL, single_dorm_operation, &flag_studentB);
 
     // Wait for threads to finish
