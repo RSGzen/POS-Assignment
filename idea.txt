@@ -1,83 +1,30 @@
-Scenario:
+New Scenario:
 
-It is the year 2024:
-University Xter Malaysia Bangi (UXMB) is a well-knowed university in Bangi. It is currently recruiting for 1 student.
+Malaysia is known for its tourism in social media especially the beautiful islands with clear water and rich aquatic ecosystem
 
-UXMB's campus has 1 dorm room for students, a single person dorm.
-The single person dorm can accomodate only 1 person at the same time.
+As such, a lot of tourists from around the world is fond of scuba diving at the infamous Redang Island.
 
-Each UXMB student must stay in campus to proceed with their studies.
+Currently, there is only 1 bridge at the beach of Redang Island which lead tourists to the scuba diving spot.
 
-Student A is a new student in UXMB and stayed at the single person dorm.
-Student A is required to stay at this dorm for the 4 year of his study which he is now only a year 1 student.
+The bridge can have a maximum capacity of 3 tourists at the same time.
 
-At the year 2025, the school suddenly annouced to carry out a 1-year renovation plan to the dorm.
+Due to the conservation acts of coral reefs at Redang Island, only 1 tourist can scuba dive at that spot at the same time
 
-During the 1 year renovation, student originally staying in the dorm will be temporarily moved and wait until renovation has completed.
-Student A received a notice that the room should be evacuated or he will be evicted.
+Currently, there are 5 tourists wanting to scuba dive and waiting at the beach.
 
-But due to the local law, student A cannot be randomly evicted and renovation must wait until student A completed his studies.
-
-Now at the same time, there are 1 new students at the UXMB office which is student B.
-
-Currently, student A has 3 year remaining in studies. 
-Repair worker needs 1 year to complete renovation. 
-Student B and C has 4 year remaining in studies.
-
-How can we propose a solution to solve this efficiently, so that 2 students can finish their studies and the renovation can carry out?
+How can we propose a solution to solve this efficiently?
 
 Solution Planning:
 
-Assuming student A, B and repair worker as 3 threads:
---> Student A: thread_A
---> Student B: thread_B
---> Repair worker: thread_w
+Assuming the 5 tourists are:
+--> Tourist 1
+--> Tourist 2
+--> Tourist 3
+--> Tourist 4
+--> Tourist 5
 
-Assuming the dorm space as the resource:
---> Student A will first finish the 3 years of study in dorm
---> Student A will then move out
+Assuming bridge acts as the semaphore:
+--> Only allowing 3 tourists on the bridge at one time
 
---> Next, repair worker will perform renovation for 1 year
---> Repair worker completed renovation
-
---> Student B will move in to study for 4 years
-
-Steps:
-
---> Create global mutex
---> Create global semaphore
-
---> Create global data of current number of person in the room
---> Create global data of current year
-
---> Create global data of 2 students representing their current years of study left (YOSL)
-    -> Student A = 3 years
-    -> Student B = 4 years
-    
--> Create global data of repair worker representing current years of rennovation left (YORL)
-    -> 1 year
-
---> Create a function
-    -> Single dorm (using mutex, only for student A and repair worker)
-        > Lock mutex
-        > Increase number of person in room
-        > Loop until YOSL / YORL becomes 0
-            > Increase current year by 1
-            > Decrease YOSL / YORL by 1
-            > Print current year and information of thread
-        > Unlock mutex
-        > Decrease number of person in room
-
---> Create 3 threads which represent A, B and repair
-
---> In main function:
-
-    -> Initialize mutex
-
-    -> Create thread_A (single_dorm)
-    -> Create thread_repair (single_dorm)
-
-    -> thread_A join 
-    -> thread_repair join
-
-    -> Destroy mutex
+Assuming scuba diving acts as the mutex:
+--> Only allowing 1 tourist to dive at one time
