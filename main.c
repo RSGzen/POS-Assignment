@@ -55,13 +55,13 @@ void* bridge_function(void* arg)
     num_tourist_on_bridge++;
 
     // Obtain value of semaphore AKA number of tourists on the bridge
-    sem_getvalue(&bridge, &sval);
+    sem_getvalue(&bridge, &sem_val);
 
     // Show which tourist in on the bridge right now
     printf("\nTourist %d is on the bridge.\nNumber of tourists on bridge: %d\n", *(int*)arg, num_tourist_on_bridge);
 
     // Print message that max tourists on bridge reached if semaphore value is 0
-    if (sval == 0)
+    if (sem_val == 0)
     {
         printf("\nThere are currently maximum of 3 tourists on the bridge. \nOther tourists need to wait on the beach patiently\n");
     }
@@ -76,7 +76,7 @@ void* bridge_function(void* arg)
     num_tourist_on_bridge--;
 
     // Show which tourist in on the bridge right now
-    printf("\nTourist %d left the bridge.\nnNumber of tourists on bridge: %d\n", *(int*)arg, num_tourist_on_bridge);
+    printf("\nTourist %d left the bridge.\nNumber of tourists on bridge: %d\n", *(int*)arg, num_tourist_on_bridge);
 
     // Signal (Increase the semaphore value)
     sem_post(&bridge);
