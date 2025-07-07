@@ -9,14 +9,20 @@ sem_t bridge;
 // Mutex which refers to the diving spot
 pthread_mutex_t diving_spot;
 
-// Value of semaphore
-int sem_val;
-
 // Counter for current number of tourists on the bridge
 int num_tourist_on_bridge = 0;
 
 // Counter for current number of tourists scuba diving
 int num_tourist_diving = 0;
+
+// Print statement if number of tourists on the bridge reached maximum of 3
+void check_and_print_bridge_max()
+{
+    if (num_tourist_on_bridge == 3)
+    {
+        printf("\nThere are currently maximum of 3 tourists on the bridge. \nOther tourists need to wait on the beach patiently\n");
+    }
+}
 
 // Mutex function 
 void* diving_function(int id)
@@ -30,8 +36,8 @@ void* diving_function(int id)
     // Show which tourist in scuba diving right now
     printf("\nTourist %d is scuba diving.\nNumber of tourists scuba diving: %d\n", id, num_tourist_diving);
 
-    // Simulate time taken to scuba dive
-    sleep(1);
+    // Print that maximum amount of divers reached in diving spot
+    printf("\nThere are currently maximum of 1 tourists in diving spot. \nOther tourists need to wait on the bridge patiently\n");
 
     // Decrement the number of tourists scuba diving
     num_tourist_diving--;
@@ -54,19 +60,11 @@ void* bridge_function(void* arg)
     // Increment the number of tourist on the bridge
     num_tourist_on_bridge++;
 
-    // Obtain value of semaphore AKA number of tourists on the bridge
-    sem_getvalue(&bridge, &sem_val);
-
     // Show which tourist in on the bridge right now
     printf("\nTourist %d is on the bridge.\nNumber of tourists on bridge: %d\n", *(int*)arg, num_tourist_on_bridge);
+    
+    check_and_print_bridge_max();
 
-    // Print message that max tourists on bridge reached if semaphore value is 0
-    if (sem_val == 0)
-    {
-        printf("\nThere are currently maximum of 3 tourists on the bridge. \nOther tourists need to wait on the beach patiently\n");
-    }
-
-    // Simulating waiting time on the bridge
     sleep(1);
 
     // Tourist can dive if the diving spot is empty
@@ -102,6 +100,9 @@ int main()
         -> 3rd argument: 3 = Maximum value of semaphore
     */
     sem_init(&bridge, 0, 3);
+
+    // Intialize mutex
+    pthread_mutex_init(&diving_spot, NULL);
 
     // Create 5 threads respective to 5 tourists waiting at beach
     pthread_create(&t1, NULL, bridge_function, &id1);
