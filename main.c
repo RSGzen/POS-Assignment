@@ -103,10 +103,6 @@ int main()
     */
     sem_init(&bridge, 0, 3);
 
-    //Initialize the mutex
-    pthread_mutex_init(&diving_spot, NULL);
-
-
     // Create 5 threads respective to 5 tourists waiting at beach
     pthread_create(&t1, NULL, bridge_function, &id1);
     pthread_create(&t2, NULL, bridge_function, &id2);
